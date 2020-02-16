@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  become: yes
+  become_method: sudo
+  roles:
+    - common
+  tasks:
+  - name: Copy Index Page Files
+    copy: src=templates/apps dest=/opt/SP/apps/tomcat/webapps/ mode=0644
+    notify: 
+    - Restart Tomcat
+
+
