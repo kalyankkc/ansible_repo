@@ -1,0 +1,43 @@
+node {
+
+try {
+notify('Job Started')
+ 
+ stage('Ansible-Checkout') {
+    sh 'rm -rf ansible_repo'
+   sh 'git clone https://github.com/kalyankkc/ansible_repo.git'
+  }
+  
+  
+   def ansible_path="ansible_repo/ansible/"
+  dir(ansible_path) {
+       stage('Download from Jfrog'){
+        def server= Artifactory.server 'Jfrog'
+            def downloadSpec = """{
+                "files": [{
+                "pattern": "project-warfile/*.war",
+                "target": "jfrogdownload/" }]
+            }"""
+        server.download(downloadSpec)
+   }
+  
+  stage('Geting Ready For Ansible') {
+  sh label: 'Docker', script: 'cp -rf jfrogdownload/*.war templates/'
+  sh label: 'Jenkins', script: "echo '<h1> TASK BUILD ID: ${env.BUILD_DISPLAY_NAME}</h1>' > templates/apps/index.html"
+  }  
+}
+
+notify('Job Completed')
+}catch(err)
+  notify("Error ${err}")
+  currentBuild.result = 'FAILURE'
+}
+
+def notify(status){
+    emailext (
+	to: "kalyankkc118@.gmail.com",
+	subject: "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+	 body: """<p>${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+	<p>Check console output at <a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a></p>""",
+		)
+	}
