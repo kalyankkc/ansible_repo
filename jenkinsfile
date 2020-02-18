@@ -1,8 +1,5 @@
 node {
 
-try {
-notify('Job Started')
- 
  stage('Ansible-Checkout') {
     sh 'rm -rf ansible_repo'
    sh 'git clone https://github.com/kalyankkc/ansible_repo.git'
@@ -32,10 +29,6 @@ notify('Job Started')
   
 }
 
-notify('Job Completed')
-}catch(err)
-  notify("Error ${err}")
-  currentBuild.result = 'FAILURE'
 }
 
 def notify(status){
