@@ -1,6 +1,6 @@
 node {
 
- stage('Ansible-Checkout') {
+ stage('Git-Checkout') {
     sh 'rm -rf ansible_repo'
    sh 'git clone https://github.com/kalyankkc/ansible_repo.git'
   }
